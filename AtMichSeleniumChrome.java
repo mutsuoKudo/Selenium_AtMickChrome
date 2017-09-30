@@ -11,10 +11,12 @@ import java.util.logging.FileHandler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.openqa.selenium.By;
+import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
+//import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.remote.DesiredCapabilities;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
@@ -214,14 +216,15 @@ public class AtMichSeleniumChrome {
                 try {
                     wait.until(ExpectedConditions
                             .presenceOfElementLocated(By.cssSelector("#myblog-nice-insert-area > input:nth-child(1)")));
-
                     WebElement nice_button = driver
                             .findElement(By.cssSelector("#myblog-nice-insert-area > input:nth-child(1)"));
                     boolean niceButtonDisplayed = nice_button.isDisplayed();
                     if (niceButtonDisplayed) {
                         System.out.println(" 個別記事のniceボタン発見 ");
 //                        logger.log(Level.INFO, "個別記事のniceボタン発見");
-                        driver.findElement(By.cssSelector("#myblog-nice-insert-area > input:nth-child(1)")).click();
+                        driver.findElement(By.cssSelector("#myblog-nice-insert-area > input:nth-child(1)"));
+                        nice_button.sendKeys(Keys.CONTROL);
+                        nice_button.click();
                         try {
                             wait.until(ExpectedConditions.visibilityOfElementLocated(
                                     By.cssSelector("#myblog-nice-delete-owner-area > input:nth-child(1)")));
