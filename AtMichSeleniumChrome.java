@@ -62,6 +62,7 @@ public class AtMichSeleniumChrome {
         WebDriver driver = new ChromeDriver(options);
 //        WebDriver driver = new ChromeDriver(cap);
         driver.get("http://atmick.blog.so-net.ne.jp/");
+        driver.findElement(By.id("loginformsubmit")).sendKeys(Keys.CONTROL);
         driver.findElement(By.linkText("ログイン")).click();
         WebDriverWait wait = new WebDriverWait(driver, 44);
         wait.until(ExpectedConditions.visibilityOfElementLocated(By.name("SSO_COMMON_ID")));
@@ -70,6 +71,7 @@ public class AtMichSeleniumChrome {
         user.sendKeys("mukudo7656198@fa2");
         wait.until(ExpectedConditions.visibilityOfElementLocated(By.name("SSO_COMMON_PWD")));
         driver.findElement(By.name("SSO_COMMON_PWD")).sendKeys("7656198s");
+        driver.findElement(By.id("loginformsubmit")).sendKeys(Keys.CONTROL);
         driver.findElement(By.id("loginformsubmit")).click();
         wait.until(ExpectedConditions.visibilityOfElementLocated(By.linkText("＠ミック")));
         System.out.println(" ＠ミックとしてログイン ");
@@ -129,8 +131,8 @@ public class AtMichSeleniumChrome {
             Statement st = con.createStatement();
 
             /* SQL文を作成する */
-//            String sqlStr = "SELECT * FROM selenium_url where id > 0";
-            String sqlStr = "SELECT * FROM selenium_url where id > 0 order by id desc";
+            String sqlStr = "SELECT * FROM selenium_url where id > 0";
+//            String sqlStr = "SELECT * FROM selenium_url where id > 0 order by id desc";
 
             /* SQL文を実行した結果セットをResultSetオブジェクトに格納している */
             ResultSet result = st.executeQuery(sqlStr);
