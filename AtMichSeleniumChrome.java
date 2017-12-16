@@ -49,6 +49,7 @@ public class AtMichSeleniumChrome {
         } catch (IOException e) {
             e.printStackTrace();
         }
+
         // ログ出力レベルをCONFIG以上に設定する
         logger.setLevel(Level.ALL);
         //chromeドライバの設定
@@ -63,7 +64,13 @@ public class AtMichSeleniumChrome {
 //        WebDriver driver = new ChromeDriver(cap);
         driver.get("http://atmick.blog.so-net.ne.jp/");
         driver.findElement(By.linkText("ログイン")).sendKeys(Keys.CONTROL);
-        driver.findElement(By.linkText("ログイン")).click();
+        try {
+            driver.findElement(By.linkText("ログイン")).click();
+        } catch (Exception e) {
+            System.out.println("ログインクリック時の例外");
+            logger.log(Level.WARNING, "ログインクリック時の例外 {0}", new Object[]{e.toString()});
+//                    e.printStackTrace();
+        }
         WebDriverWait wait = new WebDriverWait(driver, 44);
         wait.until(ExpectedConditions.visibilityOfElementLocated(By.name("SSO_COMMON_ID")));
         WebElement user = driver.findElement(By.name("SSO_COMMON_ID"));
@@ -131,8 +138,8 @@ public class AtMichSeleniumChrome {
             Statement st = con.createStatement();
 
             /* SQL文を作成する */
-            String sqlStr = "SELECT * FROM selenium_url where id > 0";
-//            String sqlStr = "SELECT * FROM selenium_url where id > 0 order by id desc";
+//            String sqlStr = "SELECT * FROM selenium_url where id > 0";
+            String sqlStr = "SELECT * FROM selenium_url where id > 0 order by id desc";
 
             /* SQL文を実行した結果セットをResultSetオブジェクトに格納している */
             ResultSet result = st.executeQuery(sqlStr);
