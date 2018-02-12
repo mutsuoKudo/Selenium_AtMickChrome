@@ -2,6 +2,7 @@
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -62,15 +63,16 @@ public class AtMichSeleniumChrome {
 //        cap.setCapability("marionette", true);
         WebDriver driver = new ChromeDriver(options);
 //        WebDriver driver = new ChromeDriver(cap);
-        driver.get("http://atmick.blog.so-net.ne.jp/");
-        driver.findElement(By.linkText("ログイン")).sendKeys(Keys.CONTROL);
-        try {
-            driver.findElement(By.linkText("ログイン")).click();
-        } catch (Exception e) {
-            System.out.println("ログインクリック時の例外");
-            logger.log(Level.WARNING, "ログインクリック時の例外 {0}", new Object[]{e.toString()});
-//                    e.printStackTrace();
-        }
+//        driver.get("http://atmick.blog.so-net.ne.jp/");
+        driver.get("https://blog.so-net.ne.jp/MyPage/blog/article/edit/list");
+//        driver.findElement(By.linkText("ログイン")).sendKeys(Keys.CONTROL);
+//        try {
+//            driver.findElement(By.linkText("ログイン")).click();
+//        } catch (Exception e) {
+//            System.out.println("ログインクリック時の例外");
+//            logger.log(Level.WARNING, "ログインクリック時の例外 {0}", new Object[]{e.toString()});
+////                    e.printStackTrace();
+//        }
         WebDriverWait wait = new WebDriverWait(driver, 44);
         wait.until(ExpectedConditions.visibilityOfElementLocated(By.name("SSO_COMMON_ID")));
         WebElement user = driver.findElement(By.name("SSO_COMMON_ID"));
@@ -80,9 +82,9 @@ public class AtMichSeleniumChrome {
         driver.findElement(By.name("SSO_COMMON_PWD")).sendKeys("7656198s");
         driver.findElement(By.id("loginformsubmit")).sendKeys(Keys.CONTROL);
         driver.findElement(By.id("loginformsubmit")).click();
-        wait.until(ExpectedConditions.visibilityOfElementLocated(By.linkText("＠ミック")));
-        System.out.println(" ＠ミックとしてログイン ");
-        logger.log(Level.INFO, "＠ミックとしてログイン：info");
+//        wait.until(ExpectedConditions.visibilityOfElementLocated(By.linkText("＠ミック")));
+//        System.out.println(" ＠ミックとしてログイン ");
+//        logger.log(Level.INFO, "＠ミックとしてログイン：info");
 
         /* 接続先サーバー名を"localhost"で与えることを示している */
 //		String servername = "localhost";
@@ -135,14 +137,16 @@ public class AtMichSeleniumChrome {
 			 * データベースの接続後に、sql文をデータベースに直接渡すのではなく、
 			 * sqlコンテナの役割を果たすオブジェクトに渡すためのStatementオブジェクトを作成する。
              */
-            Statement st = con.createStatement();
+//            Statement st = con.createStatement();
 
             /* SQL文を作成する */
-//            String sqlStr = "SELECT * FROM selenium_url where id > 0";
-            String sqlStr = "SELECT * FROM selenium_url where id > 0 order by id desc";
+//            String sqlStr = "SELECT * FROM selenium_url where id > 6283";
+            String sqlStr = "SELECT * FROM selenium_url where id >= 0 order by id desc";
+            PreparedStatement st = con.prepareStatement(sqlStr);
 
             /* SQL文を実行した結果セットをResultSetオブジェクトに格納している */
-            ResultSet result = st.executeQuery(sqlStr);
+//            ResultSet result = st.executeQuery(sqlStr);
+            ResultSet result = st.executeQuery();
 
             /* 途中経過表示用変数 */
             int no_of_nice = 0;
@@ -155,11 +159,33 @@ public class AtMichSeleniumChrome {
             int no_of_transferfail = 0;
             int no_of_clickfail = 0;
 
+            /* 各種変数定義 */
+            LocalDateTime nowLocalDt = null;
+            String localStr1 = null;
+            int blog_active_flg = 0;
+            int blog_id = 0;
+            String blog_url = null;
+            String blog_title = null;
+            String blog_post_date = null;
+            String article_post_date = null;
+            boolean niceButtonDisplayed = false;
+            boolean postDateDisplayed = false;
+            WebElement nice_button = null;
+            WebElement element_post_date = null;
+            int proccessed_Number_of_row = 0;
+
+            /* 動的SQL */
+            String updSql = "update selenium_url set post_date= ? where id = ?";
+            PreparedStatement pst = con.prepareStatement(updSql);
+            
+            String updFlgSql = "update selenium_url set active_flg= '2',remarks = '投稿日が見つからない' where id = ?";
+            PreparedStatement pstFlg = con.prepareStatement(updFlgSql);
+
             /* クエリ結果を1レコードずつ出力していく */
             while (result.next()) {
                 /* 時刻を格納する変数 */
-                LocalDateTime nowLocalDt = LocalDateTime.now();
-                String localStr1 = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss.SSS").format(nowLocalDt);
+                nowLocalDt = LocalDateTime.now();
+                localStr1 = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss.SSS").format(nowLocalDt);
                 /* アクセス数 表示 */
                 System.out.println(localStr1 + " access:" + no_of_access + " nice:" + no_of_nice + " skip:"
                         + no_of_skip + " non_title:" + no_of_nontitle + " no_nice_button:" + no_of_nonicebutton
@@ -172,10 +198,11 @@ public class AtMichSeleniumChrome {
 //                        + no_of_transferfail + " click_fail:"
 //                        + no_of_clickfail);
                 /* getString()メソッドは、引数に指定されたフィールド名(列)の値をStringとして取得する */
-                int blog_active_flg = result.getInt("active_flg");
-                int blog_id = result.getInt("id");
-                String blog_url = result.getString("url");
-                String blog_title = result.getString("title");
+                blog_active_flg = result.getInt("active_flg");
+                blog_id = result.getInt("id");
+                blog_url = result.getString("url");
+                blog_title = result.getString("title");
+                blog_post_date = result.getString("post_date");
                 if (blog_active_flg != 0) {
                     System.out.println(blog_url + ", " + blog_title + "は有効でないためとばす");
 //                    logger.log(Level.INFO, blog_url + ", " + blog_title + "は有効でないためとばす");
@@ -214,8 +241,10 @@ public class AtMichSeleniumChrome {
                     driver.findElement(By.cssSelector(".articles-title:first-child a")).sendKeys(Keys.CONTROL);
                     driver.findElement(By.cssSelector(".articles-title:first-child a")).click();
                 } catch (Exception e) {
-                    System.out.println(blog_title + " クリックできませんでした ");
+                    System.out.println(blog_title + " 最初の記事をクリックできませんでした ");
                     logger.log(Level.WARNING, "{0} \u30af\u30ea\u30c3\u30af\u3067\u304d\u307e\u305b\u3093\u3067\u3057\u305f {1}", new Object[]{blog_id, blog_title, blog_url, e.toString()});
+                    /* エラーメッセージ出力 */
+                    System.out.println("First Article Click Failed. : " + e.toString());
 //                    e.printStackTrace();
                     no_of_clickfail++;
                     no_of_skip++;
@@ -226,9 +255,9 @@ public class AtMichSeleniumChrome {
                 try {
                     wait.until(ExpectedConditions
                             .presenceOfElementLocated(By.cssSelector("#myblog-nice-insert-area > input:nth-child(1)")));
-                    WebElement nice_button = driver
+                    nice_button = driver
                             .findElement(By.cssSelector("#myblog-nice-insert-area > input:nth-child(1)"));
-                    boolean niceButtonDisplayed = nice_button.isDisplayed();
+                    niceButtonDisplayed = nice_button.isDisplayed();
                     if (niceButtonDisplayed) {
                         System.out.println(" 個別記事のniceボタン発見 ");
 //                        logger.log(Level.INFO, "個別記事のniceボタン発見");
@@ -252,6 +281,34 @@ public class AtMichSeleniumChrome {
                     } else {
                         System.out.println(" 個別記事のnice押下処理を飛ばします ");
 //                        logger.log(Level.INFO, "個別記事のnice押下処理を飛ばします");
+                        /* ポスト日を取得しDBにセーブ  */
+                        try {
+                            wait.until(ExpectedConditions
+                                    .visibilityOfElementLocated(By.cssSelector("#main > div.articles > div.posted > span.postDate")));
+                            element_post_date = driver
+                                    .findElement(By.cssSelector("#main > div.articles > div.posted > span.postDate"));
+                            postDateDisplayed = element_post_date.isDisplayed();
+                            if (postDateDisplayed) {
+                                article_post_date = element_post_date.getText();
+                                if (article_post_date.equals(blog_post_date)) {
+//                                        no action
+                                } else {
+
+                                    pst.setString(1, article_post_date);
+                                    pst.setInt(2, blog_id);
+                                    proccessed_Number_of_row = pst.executeUpdate();
+                                }
+                            }
+                        } catch (Exception e) {
+//                            pst.setInt(1, blog_id);
+//                            proccessed_Number_of_row = pstFlg.executeUpdate();
+                            System.out.println(blog_title + " 投稿日が見つかりませんでした ");
+                            logger.log(Level.WARNING, "{0} 投稿日が見つかりませんでした {1}", new Object[]{blog_id, blog_title, blog_url, e.toString()});
+//                    e.printStackTrace();
+//                                no_of_nontitle++;
+//                                no_of_skip++;
+//                                continue;
+                        }
                         no_of_alreadynice++;
                         no_of_skip++;
                     }
@@ -273,8 +330,8 @@ public class AtMichSeleniumChrome {
 //                    e.printStackTrace();
             } finally {
                 /* 時刻を格納する変数 */
-                LocalDateTime nowLocalDt = LocalDateTime.now();
-                String localStr1 = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss.SSS").format(nowLocalDt);
+                nowLocalDt = LocalDateTime.now();
+                localStr1 = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss.SSS").format(nowLocalDt);
                 System.out.println(localStr1 + " access:" + no_of_access + " nice:" + no_of_nice + " skip:"
                         + no_of_skip + " non_title:" + no_of_nontitle + " no_nice_button:" + no_of_nonicebutton
                         + " already_nice:" + no_of_alreadynice + " nice_fail:" + no_of_nicefail + " transfer_fail:"
@@ -296,6 +353,7 @@ public class AtMichSeleniumChrome {
 
             /* Statementオブジェクトを閉じる */
             st.close();
+            pst.close();
 
             /* Connectionオブジェクトを閉じる */
             con.close();
