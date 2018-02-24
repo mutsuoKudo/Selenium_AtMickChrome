@@ -63,16 +63,16 @@ public class AtMichSeleniumChrome {
 //        cap.setCapability("marionette", true);
         WebDriver driver = new ChromeDriver(options);
 //        WebDriver driver = new ChromeDriver(cap);
-//        driver.get("http://atmick.blog.so-net.ne.jp/");
-        driver.get("https://blog.so-net.ne.jp/MyPage/blog/article/edit/list");
-//        driver.findElement(By.linkText("ログイン")).sendKeys(Keys.CONTROL);
-//        try {
-//            driver.findElement(By.linkText("ログイン")).click();
-//        } catch (Exception e) {
-//            System.out.println("ログインクリック時の例外");
-//            logger.log(Level.WARNING, "ログインクリック時の例外 {0}", new Object[]{e.toString()});
-////                    e.printStackTrace();
-//        }
+        driver.get("http://atmick.blog.so-net.ne.jp/");
+//        driver.get("https://blog.so-net.ne.jp/MyPage/blog/article/edit/list");
+        driver.findElement(By.linkText("ログイン")).sendKeys(Keys.CONTROL);
+        try {
+            driver.findElement(By.linkText("ログイン")).click();
+        } catch (Exception e) {
+            System.out.println("ログインクリック時の例外");
+            logger.log(Level.WARNING, "ログインクリック時の例外 {0}", new Object[]{e.toString()});
+//                    e.printStackTrace();
+        }
         WebDriverWait wait = new WebDriverWait(driver, 44);
         wait.until(ExpectedConditions.visibilityOfElementLocated(By.name("SSO_COMMON_ID")));
         WebElement user = driver.findElement(By.name("SSO_COMMON_ID"));
@@ -82,20 +82,21 @@ public class AtMichSeleniumChrome {
         driver.findElement(By.name("SSO_COMMON_PWD")).sendKeys("7656198s");
         driver.findElement(By.id("loginformsubmit")).sendKeys(Keys.CONTROL);
         driver.findElement(By.id("loginformsubmit")).click();
-//        wait.until(ExpectedConditions.visibilityOfElementLocated(By.linkText("＠ミック")));
-//        System.out.println(" ＠ミックとしてログイン ");
-//        logger.log(Level.INFO, "＠ミックとしてログイン：info");
+        wait.until(ExpectedConditions.visibilityOfElementLocated(By.linkText("＠ミック")));
+        System.out.println(" ＠ミックとしてログイン ");
+        logger.log(Level.INFO, "＠ミックとしてログイン：info");
 
         /* 接続先サーバー名を"localhost"で与えることを示している */
-//		String servername = "localhost";
-        String servername = "192.168.1.212:3306";
+        String servername = "localhost";
+//        String servername = "192.168.1.212:3306";
 
         /* 接続するデータベース名をsenngokuとしている */
         String databasename = "seleniumdb";
 
         /* データベースの接続に用いるユーザ名をrootユーザとしている */
 //		String user_name = "root";
-        String user_name = "mouseMySQL";
+//        String user_name = "mouseMySQL";
+        String user_name = "javaMySQL";
 
         /* データベースの接続に用いるユーザのパスワードを指定している */
         String password = "7656198s";
@@ -104,8 +105,8 @@ public class AtMichSeleniumChrome {
         String serverencoding = "UTF-8";
 
         /* データベースをあらわすURLを設定している */
-//		String url = "jdbc:mysql://localhost/" + databasename;
-        String url = "jdbc:mysql://192.168.1.212:3306/" + databasename;
+        String url = "jdbc:mysql://localhost/" + databasename;
+//        String url = "jdbc:mysql://192.168.1.212:3306/" + databasename;
 
         /*
 		 * MySQLの場合、URLの形式は次のようになります。 jdbc:mysql://(サーバ名)/(データベース名)
@@ -141,7 +142,8 @@ public class AtMichSeleniumChrome {
 
             /* SQL文を作成する */
 //            String sqlStr = "SELECT * FROM selenium_url where id > 6283";
-            String sqlStr = "SELECT * FROM selenium_url where id >= 0 order by id desc";
+//            String sqlStr = "SELECT * FROM selenium_url where id < 20950 order by id desc";
+            String sqlStr = "SELECT * FROM selenium_url where id >= 0 order by id";
             PreparedStatement st = con.prepareStatement(sqlStr);
 
             /* SQL文を実行した結果セットをResultSetオブジェクトに格納している */
@@ -177,7 +179,7 @@ public class AtMichSeleniumChrome {
             /* 動的SQL */
             String updSql = "update selenium_url set post_date= ? where id = ?";
             PreparedStatement pst = con.prepareStatement(updSql);
-            
+
             String updFlgSql = "update selenium_url set active_flg= '2',remarks = '投稿日が見つからない' where id = ?";
             PreparedStatement pstFlg = con.prepareStatement(updFlgSql);
 
@@ -214,19 +216,23 @@ public class AtMichSeleniumChrome {
                 }
                 try {
                     driver.get(blog_url);
+//                    driver.navigate().to(blog_url);
                     System.out.println(blog_url + " に移動 ");
 //                    logger.log(Level.INFO, blog_url + " に移動 ");
                 } catch (Exception e) {
                     System.out.println(blog_title + " URLの移動に失敗しました ");
                     logger.log(Level.WARNING, "{0} URL\u306e\u79fb\u52d5\u306b\u5931\u6557\u3057\u307e\u3057\u305f {1}", new Object[]{blog_id, blog_title, blog_url, e.toString()});
-//                    e.printStackTrace();
+                    e.printStackTrace();
                     no_of_transferfail++;
                     no_of_skip++;
+                    logger.log(Level.INFO, "access:{0} nice:{1} skip:{2} non_title:{3} no_nice_button:{4} already_nice:{5} nice_fail:{6} transfer_fail:{7} click_fail:{8}", new Object[]{no_of_access, no_of_nice, no_of_skip, no_of_nontitle, no_of_nonicebutton, no_of_alreadynice, no_of_nicefail, no_of_transferfail, no_of_clickfail});
+                    driver.navigate().back();
                     continue;
                 }
                 try {
                     wait.until(ExpectedConditions
                             .visibilityOfElementLocated(By.cssSelector(".articles-title:first-child a")));
+//                            .visibilityOfElementLocated(By.cssSelector("#main > div:nth-child(3) > h2 > a:nth-child(1)")));
                 } catch (Exception e) {
                     System.out.println(blog_title + " 最初の記事のタイトルが見つかりませんでした ");
                     logger.log(Level.WARNING, "{0} \u6700\u521d\u306e\u8a18\u4e8b\u306e\u30bf\u30a4\u30c8\u30eb\u304c\u898b\u3064\u304b\u308a\u307e\u305b\u3093\u3067\u3057\u305f {1}", new Object[]{blog_id, blog_title, blog_url, e.toString()});
