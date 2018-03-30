@@ -56,7 +56,8 @@ public class AtMichSeleniumChrome {
         //chromeドライバの設定
         System.setProperty("webdriver.chrome.driver", "./exe/chromedriver.exe");
         ChromeOptions options = new ChromeOptions();
-        options.addArguments("purge-memory-button");
+        options.addArguments("--purge-memory-button");
+        options.addArguments("--headless");
 //        options.addArguments("disable-accelerated-mjpeg-decode");
 //        options.addArguments("disable-accelerated-video-decode");
 //        DesiredCapabilities cap = DesiredCapabilities.chrome();
@@ -227,6 +228,7 @@ public class AtMichSeleniumChrome {
                     no_of_skip++;
                     logger.log(Level.INFO, "access:{0} nice:{1} skip:{2} non_title:{3} no_nice_button:{4} already_nice:{5} nice_fail:{6} transfer_fail:{7} click_fail:{8}", new Object[]{no_of_access, no_of_nice, no_of_skip, no_of_nontitle, no_of_nonicebutton, no_of_alreadynice, no_of_nicefail, no_of_transferfail, no_of_clickfail});
                     driver.navigate().back();
+//                    driver.navigate().refresh();
                     continue;
                 }
                 try {
@@ -239,6 +241,7 @@ public class AtMichSeleniumChrome {
 //                    e.printStackTrace();
                     no_of_nontitle++;
                     no_of_skip++;
+                    driver.navigate().back();
                     continue;
                 }
                 System.out.println(blog_title + " 最初の記事のタイトル発見 ");
@@ -254,6 +257,7 @@ public class AtMichSeleniumChrome {
 //                    e.printStackTrace();
                     no_of_clickfail++;
                     no_of_skip++;
+                    driver.navigate().back();
                     continue;
                 }
                 System.out.println(blog_title + " 個別記事に移動 ");
@@ -279,6 +283,7 @@ public class AtMichSeleniumChrome {
 //                            e.printStackTrace();
                             no_of_nicefail++;
                             no_of_skip++;
+                            driver.navigate().back();
                             continue;
                         }
                         System.out.println(" 個別記事のnice押下 ");
@@ -287,6 +292,8 @@ public class AtMichSeleniumChrome {
                     } else {
                         System.out.println(" 個別記事のnice押下処理を飛ばします ");
 //                        logger.log(Level.INFO, "個別記事のnice押下処理を飛ばします");
+                        no_of_alreadynice++;
+                        no_of_skip++;
                         /* ポスト日を取得しDBにセーブ  */
                         try {
                             wait.until(ExpectedConditions
@@ -313,10 +320,8 @@ public class AtMichSeleniumChrome {
 //                    e.printStackTrace();
 //                                no_of_nontitle++;
 //                                no_of_skip++;
-//                                continue;
+                            continue;
                         }
-                        no_of_alreadynice++;
-                        no_of_skip++;
                     }
                 } catch (Exception e) {
                     System.out.println(blog_title + " niceボタンが見つかりませんでした ");
@@ -324,6 +329,8 @@ public class AtMichSeleniumChrome {
 //                    e.printStackTrace();
                     no_of_nonicebutton++;
                     no_of_skip++;
+                    driver.navigate().back();
+                    continue;
                 }
             }
 
