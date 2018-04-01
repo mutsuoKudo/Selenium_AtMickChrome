@@ -11,6 +11,8 @@ import java.time.format.DateTimeFormatter;
 import java.util.logging.FileHandler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.JDialog;
+import javax.swing.JOptionPane;
 import org.openqa.selenium.By;
 import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebDriver;
@@ -50,9 +52,20 @@ public class AtMichSeleniumChrome {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
         // ログ出力レベルをCONFIG以上に設定する
         logger.setLevel(Level.ALL);
+
+        /* 途中経過表示用変数 */
+        int no_of_nice = 0;
+        int no_of_access = 0;
+        int no_of_skip = 0;
+        int no_of_nontitle = 0;
+        int no_of_nonicebutton = 0;
+        int no_of_alreadynice = 0;
+        int no_of_nicefail = 0;
+        int no_of_transferfail = 0;
+        int no_of_clickfail = 0;
+
         //chromeドライバの設定
         System.setProperty("webdriver.chrome.driver", "./exe/chromedriver.exe");
         ChromeOptions options = new ChromeOptions();
@@ -144,23 +157,13 @@ public class AtMichSeleniumChrome {
             /* SQL文を作成する */
 //            String sqlStr = "SELECT * FROM selenium_url where id > 6283";
 //            String sqlStr = "SELECT * FROM selenium_url where id < 20950 order by id desc";
-            String sqlStr = "SELECT * FROM selenium_url where id >= 0 order by id";
+//            String sqlStr = "SELECT * FROM selenium_url where id >= 0 order by id";
+            String sqlStr = "SELECT * FROM selenium_url where id = 22392 order by id";
             PreparedStatement st = con.prepareStatement(sqlStr);
 
             /* SQL文を実行した結果セットをResultSetオブジェクトに格納している */
 //            ResultSet result = st.executeQuery(sqlStr);
             ResultSet result = st.executeQuery();
-
-            /* 途中経過表示用変数 */
-            int no_of_nice = 0;
-            int no_of_access = 0;
-            int no_of_skip = 0;
-            int no_of_nontitle = 0;
-            int no_of_nonicebutton = 0;
-            int no_of_alreadynice = 0;
-            int no_of_nicefail = 0;
-            int no_of_transferfail = 0;
-            int no_of_clickfail = 0;
 
             /* 各種変数定義 */
             LocalDateTime nowLocalDt = null;
@@ -406,6 +409,12 @@ public class AtMichSeleniumChrome {
                 /* 例外を投げちゃうぞ */
                 // throw new Exception();
             }
+            JOptionPane pane = new JOptionPane("処理が終了しました。" + " access: " + no_of_access + " nice: " + no_of_nice + " skip: " + no_of_skip + " non_title: " + no_of_nontitle + " no_nice_button: " + no_of_nonicebutton + " already_nice: " + no_of_alreadynice + " nice_fail: " + no_of_nicefail + " transfer_fail: " + no_of_transferfail + "c lick_fail: " + no_of_clickfail , JOptionPane.INFORMATION_MESSAGE);
+            JDialog dialog = pane.createDialog(null, "AtMicK_Chrome");
+            dialog.setAlwaysOnTop(true);
+            dialog.setVisible(true);
+            System.out.println("*** 終了メッセージ表示終了");
+            dialog.dispose();
         }
     }
 }
