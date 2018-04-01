@@ -157,8 +157,8 @@ public class AtMichSeleniumChrome {
             /* SQL文を作成する */
 //            String sqlStr = "SELECT * FROM selenium_url where id > 6283";
 //            String sqlStr = "SELECT * FROM selenium_url where id < 20950 order by id desc";
-//            String sqlStr = "SELECT * FROM selenium_url where id >= 0 order by id";
-            String sqlStr = "SELECT * FROM selenium_url where id = 0 order by id";
+            String sqlStr = "SELECT * FROM selenium_url where id >= 0 order by id";
+//            String sqlStr = "SELECT * FROM selenium_url where id = 0 order by id";
             PreparedStatement st = con.prepareStatement(sqlStr);
 
             /* SQL文を実行した結果セットをResultSetオブジェクトに格納している */
