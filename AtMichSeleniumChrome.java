@@ -77,7 +77,7 @@ public class AtMichSeleniumChrome {
 //        cap.setCapability("marionette", true);
         WebDriver driver = new ChromeDriver(options);
 //        WebDriver driver = new ChromeDriver(cap);
-        driver.get("http://atmick.blog.so-net.ne.jp/");
+        driver.get("https://atmick.blog.ss-blog.jp//");
 //        driver.get("https://blog.so-net.ne.jp/MyPage/blog/article/edit/list");
         driver.findElement(By.linkText("ログイン")).sendKeys(Keys.CONTROL);
         try {
@@ -88,14 +88,14 @@ public class AtMichSeleniumChrome {
 //                    e.printStackTrace();
         }
         WebDriverWait wait = new WebDriverWait(driver, 44);
-        wait.until(ExpectedConditions.visibilityOfElementLocated(By.name("SSO_COMMON_ID")));
-        WebElement user = driver.findElement(By.name("SSO_COMMON_ID"));
+        wait.until(ExpectedConditions.visibilityOfElementLocated(By.name("email")));
+        WebElement user = driver.findElement(By.name("email"));
         user.clear();
-        user.sendKeys("mukudo7656198@fa2");
-        wait.until(ExpectedConditions.visibilityOfElementLocated(By.name("SSO_COMMON_PWD")));
-        driver.findElement(By.name("SSO_COMMON_PWD")).sendKeys("7656198s");
-        driver.findElement(By.id("loginformsubmit")).sendKeys(Keys.CONTROL);
-        driver.findElement(By.id("loginformsubmit")).click();
+        user.sendKeys("mukudo@aqu.bekkoame.ne.jp");
+        wait.until(ExpectedConditions.visibilityOfElementLocated(By.name("password")));
+        driver.findElement(By.name("password")).sendKeys("7656198s-");
+        driver.findElement(By.cssSelector("body > div > main > div > div > form > fieldset > button")).sendKeys(Keys.CONTROL);
+        driver.findElement(By.cssSelector("body > div > main > div > div > form > fieldset > button")).click();
         wait.until(ExpectedConditions.visibilityOfElementLocated(By.linkText("＠ミック")));
         System.out.println(" ＠ミックとしてログイン ");
         logger.log(Level.INFO, "＠ミックとしてログイン：info");
@@ -157,8 +157,8 @@ public class AtMichSeleniumChrome {
             /* SQL文を作成する */
 //            String sqlStr = "SELECT * FROM selenium_url where id > 6283";
 //            String sqlStr = "SELECT * FROM selenium_url where id < 20950 order by id desc";
-            String sqlStr = "SELECT * FROM selenium_url where id >= 0 order by id";
-//            String sqlStr = "SELECT * FROM selenium_url where id = 0 order by id";
+            String sqlStr = "SELECT * FROM selenium_url where id >= 0 order by id DESC";
+//            String sqlStr = "SELECT * FROM selenium_url where id = 0 order by id DESC";
             PreparedStatement st = con.prepareStatement(sqlStr);
 
             /* SQL文を実行した結果セットをResultSetオブジェクトに格納している */
@@ -418,3 +418,14 @@ public class AtMichSeleniumChrome {
         }
     }
 }
+
+
+
+
+
+
+
+
+
+
+
