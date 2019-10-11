@@ -77,7 +77,7 @@ public class AtMichSeleniumChrome {
 //        cap.setCapability("marionette", true);
         WebDriver driver = new ChromeDriver(options);
 //        WebDriver driver = new ChromeDriver(cap);
-        driver.get("https://atmick.blog.ss-blog.jp//");
+        driver.get("https://atmick.blog.ss-blog.jp/");
 //        driver.get("https://blog.so-net.ne.jp/MyPage/blog/article/edit/list");
         driver.findElement(By.linkText("ログイン")).sendKeys(Keys.CONTROL);
         try {
@@ -418,6 +418,7 @@ public class AtMichSeleniumChrome {
         }
     }
 }
+
 
 
 
