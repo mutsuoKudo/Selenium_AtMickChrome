@@ -2,20 +2,24 @@
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.logging.FileHandler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import javax.swing.JDialog;
+import javax.swing.JOptionPane;
+
 import org.openqa.selenium.By;
+import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
-import org.openqa.selenium.remote.DesiredCapabilities;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
@@ -49,50 +53,75 @@ public class AtMichSeleniumChrome {
         }
         // ログ出力レベルをCONFIG以上に設定する
         logger.setLevel(Level.ALL);
+
+        /* 途中経過表示用変数 */
+        int no_of_nice = 0;
+        int no_of_access = 0;
+        int no_of_skip = 0;
+        int no_of_nontitle = 0;
+        int no_of_nonicebutton = 0;
+        int no_of_alreadynice = 0;
+        int no_of_nicefail = 0;
+        int no_of_transferfail = 0;
+        int no_of_clickfail = 0;
+
         //chromeドライバの設定
         System.setProperty("webdriver.chrome.driver", "./exe/chromedriver.exe");
         ChromeOptions options = new ChromeOptions();
-        options.addArguments("purge-memory-button");
+        options.addArguments("--purge-memory-button");
+        options.addArguments("--headless");
+        options.addArguments("--disable-gpu");
 //        options.addArguments("disable-accelerated-mjpeg-decode");
 //        options.addArguments("disable-accelerated-video-decode");
 //        DesiredCapabilities cap = DesiredCapabilities.chrome();
 //        cap.setCapability("marionette", true);
         WebDriver driver = new ChromeDriver(options);
 //        WebDriver driver = new ChromeDriver(cap);
-        driver.get("http://atmick.blog.so-net.ne.jp/");
-        driver.findElement(By.linkText("ログイン")).click();
-        WebDriverWait wait = new WebDriverWait(driver, 60);
-        wait.until(ExpectedConditions.visibilityOfElementLocated(By.name("SSO_COMMON_ID")));
-        WebElement user = driver.findElement(By.name("SSO_COMMON_ID"));
+        driver.get("https://atmick.blog.ss-blog.jp/");
+//        driver.get("https://blog.so-net.ne.jp/MyPage/blog/article/edit/list");
+        driver.findElement(By.linkText("ログイン")).sendKeys(Keys.CONTROL);
+        try {
+            driver.findElement(By.linkText("ログイン")).click();
+        } catch (Exception e) {
+            System.out.println("ログインクリック時の例外");
+            logger.log(Level.WARNING, "ログインクリック時の例外 {0}", new Object[]{e.toString()});
+//                    e.printStackTrace();
+        }
+        WebDriverWait wait = new WebDriverWait(driver, 44);
+        wait.until(ExpectedConditions.visibilityOfElementLocated(By.name("email")));
+        WebElement user = driver.findElement(By.name("email"));
         user.clear();
-        user.sendKeys("mukudo7656198@fa2");
-        wait.until(ExpectedConditions.visibilityOfElementLocated(By.name("SSO_COMMON_PWD")));
-        driver.findElement(By.name("SSO_COMMON_PWD")).sendKeys("7656198s");
-        driver.findElement(By.id("loginformsubmit")).click();
+        user.sendKeys("mukudo@aqu.bekkoame.ne.jp");
+        wait.until(ExpectedConditions.visibilityOfElementLocated(By.name("password")));
+        driver.findElement(By.name("password")).sendKeys("7656198s-");
+        driver.findElement(By.cssSelector("body > div > main > div > div > form > fieldset > button")).sendKeys(Keys.CONTROL);
+        driver.findElement(By.cssSelector("body > div > main > div > div > form > fieldset > button")).click();
         wait.until(ExpectedConditions.visibilityOfElementLocated(By.linkText("＠ミック")));
         System.out.println(" ＠ミックとしてログイン ");
         logger.log(Level.INFO, "＠ミックとしてログイン：info");
 
         /* 接続先サーバー名を"localhost"で与えることを示している */
-//		String servername = "localhost";
-        String servername = "192.168.1.212:3306";
+        String servername = "localhost";
+//        String servername = "192.168.1.212:3306";
 
         /* 接続するデータベース名をsenngokuとしている */
         String databasename = "seleniumdb";
 
         /* データベースの接続に用いるユーザ名をrootユーザとしている */
 //		String user_name = "root";
-        String user_name = "mouseMySQL";
+//        String user_name = "mouseMySQL";
+        String user_name = "javaMySQL";
 
         /* データベースの接続に用いるユーザのパスワードを指定している */
         String password = "7656198s";
+//        String password = "rootpass";
 
         /* 取り扱う文字コードをUTF-8文字としている */
         String serverencoding = "UTF-8";
 
         /* データベースをあらわすURLを設定している */
-//		String url = "jdbc:mysql://localhost/" + databasename;
-        String url = "jdbc:mysql://192.168.1.212:3306/" + databasename;
+        String url = "jdbc:mysql://localhost/" + databasename +"?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC";
+//        String url = "jdbc:mysql://192.168.1.212:3306/" + databasename;
 
         /*
 		 * MySQLの場合、URLの形式は次のようになります。 jdbc:mysql://(サーバ名)/(データベース名)
@@ -112,7 +141,7 @@ public class AtMichSeleniumChrome {
 			 * クラスローダによりJDBCドライバを読み込んでいることを示している。
 			 * 引数は、データベースにアクセスするためのJDBCドライバのクラス名である。
              */
-            Class.forName("com.mysql.jdbc.Driver").newInstance();
+            Class.forName("com.mysql.cj.jdbc.Driver").newInstance();
 
             /* DriverManagerクラスのgetConnectionメソッドを使ってデータベースに接続する。 */
             con = DriverManager.getConnection(url, user_name, password);
@@ -124,31 +153,46 @@ public class AtMichSeleniumChrome {
 			 * データベースの接続後に、sql文をデータベースに直接渡すのではなく、
 			 * sqlコンテナの役割を果たすオブジェクトに渡すためのStatementオブジェクトを作成する。
              */
-            Statement st = con.createStatement();
+//            Statement st = con.createStatement();
 
             /* SQL文を作成する */
-            String sqlStr = "SELECT * FROM selenium_url where id > 0";
-//            String sqlStr = "SELECT * FROM selenium_url where id > 0 order by id desc";
+//            String sqlStr = "SELECT * FROM selenium_url where id > 6283";
+//            String sqlStr = "SELECT * FROM selenium_url where id < 20950 order by id desc";
+            String sqlStr = "SELECT * FROM selenium_url where id >= 0 order by id DESC";
+//            String sqlStr = "SELECT * FROM selenium_url where id = 0 order by id DESC";
+            PreparedStatement st = con.prepareStatement(sqlStr);
 
             /* SQL文を実行した結果セットをResultSetオブジェクトに格納している */
-            ResultSet result = st.executeQuery(sqlStr);
+//            ResultSet result = st.executeQuery(sqlStr);
+            ResultSet result = st.executeQuery();
 
-            /* 途中経過表示用変数 */
-            int no_of_nice = 0;
-            int no_of_access = 0;
-            int no_of_skip = 0;
-            int no_of_nontitle = 0;
-            int no_of_nonicebutton = 0;
-            int no_of_alreadynice = 0;
-            int no_of_nicefail = 0;
-            int no_of_transferfail = 0;
-            int no_of_clickfail = 0;
+            /* 各種変数定義 */
+            LocalDateTime nowLocalDt = null;
+            String localStr1 = null;
+            int blog_active_flg = 0;
+            int blog_id = 0;
+            String blog_url = null;
+            String blog_title = null;
+            String blog_post_date = null;
+            String article_post_date = null;
+            boolean niceButtonDisplayed = false;
+            boolean postDateDisplayed = false;
+            WebElement nice_button = null;
+            WebElement element_post_date = null;
+            int proccessed_Number_of_row = 0;
+
+            /* 動的SQL */
+            String updSql = "update selenium_url set post_date= ? where id = ?";
+            PreparedStatement pst = con.prepareStatement(updSql);
+
+            String updFlgSql = "update selenium_url set active_flg= '2',remarks = '投稿日が見つからない' where id = ?";
+            PreparedStatement pstFlg = con.prepareStatement(updFlgSql);
 
             /* クエリ結果を1レコードずつ出力していく */
             while (result.next()) {
                 /* 時刻を格納する変数 */
-                LocalDateTime nowLocalDt = LocalDateTime.now();
-                String localStr1 = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss.SSS").format(nowLocalDt);
+                nowLocalDt = LocalDateTime.now();
+                localStr1 = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss.SSS").format(nowLocalDt);
                 /* アクセス数 表示 */
                 System.out.println(localStr1 + " access:" + no_of_access + " nice:" + no_of_nice + " skip:"
                         + no_of_skip + " non_title:" + no_of_nontitle + " no_nice_button:" + no_of_nonicebutton
@@ -161,10 +205,11 @@ public class AtMichSeleniumChrome {
 //                        + no_of_transferfail + " click_fail:"
 //                        + no_of_clickfail);
                 /* getString()メソッドは、引数に指定されたフィールド名(列)の値をStringとして取得する */
-                int blog_active_flg = result.getInt("active_flg");
-                int blog_id = result.getInt("id");
-                String blog_url = result.getString("url");
-                String blog_title = result.getString("title");
+                blog_active_flg = result.getInt("active_flg");
+                blog_id = result.getInt("id");
+                blog_url = result.getString("url");
+                blog_title = result.getString("title");
+                blog_post_date = result.getString("post_date");
                 if (blog_active_flg != 0) {
                     System.out.println(blog_url + ", " + blog_title + "は有効でないためとばす");
 //                    logger.log(Level.INFO, blog_url + ", " + blog_title + "は有効でないためとばす");
@@ -176,37 +221,47 @@ public class AtMichSeleniumChrome {
                 }
                 try {
                     driver.get(blog_url);
+//                    driver.navigate().to(blog_url);
                     System.out.println(blog_url + " に移動 ");
 //                    logger.log(Level.INFO, blog_url + " に移動 ");
                 } catch (Exception e) {
                     System.out.println(blog_title + " URLの移動に失敗しました ");
                     logger.log(Level.WARNING, "{0} URL\u306e\u79fb\u52d5\u306b\u5931\u6557\u3057\u307e\u3057\u305f {1}", new Object[]{blog_id, blog_title, blog_url, e.toString()});
-//                    e.printStackTrace();
+                    e.printStackTrace();
                     no_of_transferfail++;
                     no_of_skip++;
+                    logger.log(Level.INFO, "access:{0} nice:{1} skip:{2} non_title:{3} no_nice_button:{4} already_nice:{5} nice_fail:{6} transfer_fail:{7} click_fail:{8}", new Object[]{no_of_access, no_of_nice, no_of_skip, no_of_nontitle, no_of_nonicebutton, no_of_alreadynice, no_of_nicefail, no_of_transferfail, no_of_clickfail});
+                    driver.navigate().back();
+//                    driver.navigate().refresh();
                     continue;
                 }
                 try {
                     wait.until(ExpectedConditions
                             .visibilityOfElementLocated(By.cssSelector(".articles-title:first-child a")));
+//                            .visibilityOfElementLocated(By.cssSelector("#main > div:nth-child(3) > h2 > a:nth-child(1)")));
                 } catch (Exception e) {
                     System.out.println(blog_title + " 最初の記事のタイトルが見つかりませんでした ");
                     logger.log(Level.WARNING, "{0} \u6700\u521d\u306e\u8a18\u4e8b\u306e\u30bf\u30a4\u30c8\u30eb\u304c\u898b\u3064\u304b\u308a\u307e\u305b\u3093\u3067\u3057\u305f {1}", new Object[]{blog_id, blog_title, blog_url, e.toString()});
 //                    e.printStackTrace();
                     no_of_nontitle++;
                     no_of_skip++;
+                    driver.navigate().back();
                     continue;
                 }
                 System.out.println(blog_title + " 最初の記事のタイトル発見 ");
 //                logger.log(Level.INFO, blog_title + " 最初の記事のタイトル発見 ");
                 try {
+                    driver.findElement(By.cssSelector(".articles-title:first-child a")).sendKeys(Keys.CONTROL);
                     driver.findElement(By.cssSelector(".articles-title:first-child a")).click();
                 } catch (Exception e) {
-                    System.out.println(blog_title + " クリックできませんでした ");
+                    System.out.println(blog_title + " 最初の記事をクリックできませんでした ");
                     logger.log(Level.WARNING, "{0} \u30af\u30ea\u30c3\u30af\u3067\u304d\u307e\u305b\u3093\u3067\u3057\u305f {1}", new Object[]{blog_id, blog_title, blog_url, e.toString()});
+                    /* エラーメッセージ出力 */
+                    System.out.println("First Article Click Failed. : " + e.toString());
 //                    e.printStackTrace();
                     no_of_clickfail++;
                     no_of_skip++;
+                    driver.navigate().back();
                     continue;
                 }
                 System.out.println(blog_title + " 個別記事に移動 ");
@@ -214,14 +269,15 @@ public class AtMichSeleniumChrome {
                 try {
                     wait.until(ExpectedConditions
                             .presenceOfElementLocated(By.cssSelector("#myblog-nice-insert-area > input:nth-child(1)")));
-
-                    WebElement nice_button = driver
+                    nice_button = driver
                             .findElement(By.cssSelector("#myblog-nice-insert-area > input:nth-child(1)"));
-                    boolean niceButtonDisplayed = nice_button.isDisplayed();
+                    niceButtonDisplayed = nice_button.isDisplayed();
                     if (niceButtonDisplayed) {
                         System.out.println(" 個別記事のniceボタン発見 ");
 //                        logger.log(Level.INFO, "個別記事のniceボタン発見");
-                        driver.findElement(By.cssSelector("#myblog-nice-insert-area > input:nth-child(1)")).click();
+                        driver.findElement(By.cssSelector("#myblog-nice-insert-area > input:nth-child(1)"));
+                        nice_button.sendKeys(Keys.CONTROL);
+                        nice_button.click();
                         try {
                             wait.until(ExpectedConditions.visibilityOfElementLocated(
                                     By.cssSelector("#myblog-nice-delete-owner-area > input:nth-child(1)")));
@@ -231,6 +287,7 @@ public class AtMichSeleniumChrome {
 //                            e.printStackTrace();
                             no_of_nicefail++;
                             no_of_skip++;
+                            driver.navigate().back();
                             continue;
                         }
                         System.out.println(" 個別記事のnice押下 ");
@@ -241,6 +298,34 @@ public class AtMichSeleniumChrome {
 //                        logger.log(Level.INFO, "個別記事のnice押下処理を飛ばします");
                         no_of_alreadynice++;
                         no_of_skip++;
+                        /* ポスト日を取得しDBにセーブ  */
+                        try {
+                            wait.until(ExpectedConditions
+                                    .visibilityOfElementLocated(By.cssSelector("#main > div.articles > div.posted > span.postDate")));
+                            element_post_date = driver
+                                    .findElement(By.cssSelector("#main > div.articles > div.posted > span.postDate"));
+                            postDateDisplayed = element_post_date.isDisplayed();
+                            if (postDateDisplayed) {
+                                article_post_date = element_post_date.getText();
+                                if (article_post_date.equals(blog_post_date)) {
+//                                        no action
+                                } else {
+
+                                    pst.setString(1, article_post_date);
+                                    pst.setInt(2, blog_id);
+                                    proccessed_Number_of_row = pst.executeUpdate();
+                                }
+                            }
+                        } catch (Exception e) {
+//                            pst.setInt(1, blog_id);
+//                            proccessed_Number_of_row = pstFlg.executeUpdate();
+                            System.out.println(blog_title + " 投稿日が見つかりませんでした ");
+                            logger.log(Level.WARNING, "{0} 投稿日が見つかりませんでした {1}", new Object[]{blog_id, blog_title, blog_url, e.toString()});
+//                    e.printStackTrace();
+//                                no_of_nontitle++;
+//                                no_of_skip++;
+                            continue;
+                        }
                     }
                 } catch (Exception e) {
                     System.out.println(blog_title + " niceボタンが見つかりませんでした ");
@@ -248,6 +333,8 @@ public class AtMichSeleniumChrome {
 //                    e.printStackTrace();
                     no_of_nonicebutton++;
                     no_of_skip++;
+                    driver.navigate().back();
+                    continue;
                 }
             }
 
@@ -260,8 +347,8 @@ public class AtMichSeleniumChrome {
 //                    e.printStackTrace();
             } finally {
                 /* 時刻を格納する変数 */
-                LocalDateTime nowLocalDt = LocalDateTime.now();
-                String localStr1 = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss.SSS").format(nowLocalDt);
+                nowLocalDt = LocalDateTime.now();
+                localStr1 = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss.SSS").format(nowLocalDt);
                 System.out.println(localStr1 + " access:" + no_of_access + " nice:" + no_of_nice + " skip:"
                         + no_of_skip + " non_title:" + no_of_nontitle + " no_nice_button:" + no_of_nonicebutton
                         + " already_nice:" + no_of_alreadynice + " nice_fail:" + no_of_nicefail + " transfer_fail:"
@@ -283,6 +370,7 @@ public class AtMichSeleniumChrome {
 
             /* Statementオブジェクトを閉じる */
             st.close();
+            pst.close();
 
             /* Connectionオブジェクトを閉じる */
             con.close();
@@ -322,6 +410,24 @@ public class AtMichSeleniumChrome {
                 /* 例外を投げちゃうぞ */
                 // throw new Exception();
             }
+            JOptionPane pane = new JOptionPane("処理が終了しました。" + " access: " + no_of_access + " nice: " + no_of_nice + " skip: " + no_of_skip + " non_title: " + no_of_nontitle + " no_nice_button: " + no_of_nonicebutton + " already_nice: " + no_of_alreadynice + " nice_fail: " + no_of_nicefail + " transfer_fail: " + no_of_transferfail + " click_fail: " + no_of_clickfail, JOptionPane.INFORMATION_MESSAGE);
+            JDialog dialog = pane.createDialog(null, "AtMicK_Chrome");
+            dialog.setAlwaysOnTop(true);
+            dialog.setVisible(true);
+            System.out.println("*** 終了メッセージ表示終了");
+            dialog.dispose();
         }
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+
