@@ -5,22 +5,21 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.logging.FileHandler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
 import javax.swing.JDialog;
 import javax.swing.JOptionPane;
+
 import org.openqa.selenium.By;
 import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
-//import org.openqa.selenium.interactions.Actions;
-import org.openqa.selenium.remote.DesiredCapabilities;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
@@ -71,6 +70,7 @@ public class AtMichSeleniumChrome {
         ChromeOptions options = new ChromeOptions();
         options.addArguments("--purge-memory-button");
         options.addArguments("--headless");
+        options.addArguments("--disable-gpu");
 //        options.addArguments("disable-accelerated-mjpeg-decode");
 //        options.addArguments("disable-accelerated-video-decode");
 //        DesiredCapabilities cap = DesiredCapabilities.chrome();
@@ -114,12 +114,13 @@ public class AtMichSeleniumChrome {
 
         /* データベースの接続に用いるユーザのパスワードを指定している */
         String password = "7656198s";
+//        String password = "rootpass";
 
         /* 取り扱う文字コードをUTF-8文字としている */
         String serverencoding = "UTF-8";
 
         /* データベースをあらわすURLを設定している */
-        String url = "jdbc:mysql://localhost/" + databasename;
+        String url = "jdbc:mysql://localhost/" + databasename +"?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC";
 //        String url = "jdbc:mysql://192.168.1.212:3306/" + databasename;
 
         /*
@@ -140,7 +141,7 @@ public class AtMichSeleniumChrome {
 			 * クラスローダによりJDBCドライバを読み込んでいることを示している。
 			 * 引数は、データベースにアクセスするためのJDBCドライバのクラス名である。
              */
-            Class.forName("com.mysql.jdbc.Driver").newInstance();
+            Class.forName("com.mysql.cj.jdbc.Driver").newInstance();
 
             /* DriverManagerクラスのgetConnectionメソッドを使ってデータベースに接続する。 */
             con = DriverManager.getConnection(url, user_name, password);
