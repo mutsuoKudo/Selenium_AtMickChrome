@@ -1,5 +1,6 @@
 
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -120,7 +121,7 @@ public class AtMichSeleniumChrome {
         String serverencoding = "UTF-8";
 
         /* データベースをあらわすURLを設定している */
-        String url = "jdbc:mysql://localhost/" + databasename +"?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC";
+        String url = "jdbc:mysql://localhost/" + databasename + "?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC";
 //        String url = "jdbc:mysql://192.168.1.212:3306/" + databasename;
 
         /*
@@ -141,7 +142,13 @@ public class AtMichSeleniumChrome {
 			 * クラスローダによりJDBCドライバを読み込んでいることを示している。
 			 * 引数は、データベースにアクセスするためのJDBCドライバのクラス名である。
              */
-            Class.forName("com.mysql.cj.jdbc.Driver").newInstance();
+            try {
+				Class.forName("com.mysql.cj.jdbc.Driver").getDeclaredConstructor().newInstance();
+			} catch (IllegalArgumentException | InvocationTargetException | NoSuchMethodException
+					| SecurityException e1) {
+				// TODO 自動生成された catch ブロック
+				e1.printStackTrace();
+			}
 
             /* DriverManagerクラスのgetConnectionメソッドを使ってデータベースに接続する。 */
             con = DriverManager.getConnection(url, user_name, password);
