@@ -78,16 +78,17 @@ public class AtMichSeleniumChrome {
 //        cap.setCapability("marionette", true);
         WebDriver driver = new ChromeDriver(options);
 //        WebDriver driver = new ChromeDriver(cap);
-        driver.get("https://atmick.blog.ss-blog.jp/");
-//        driver.get("https://blog.so-net.ne.jp/MyPage/blog/article/edit/list");
-        driver.findElement(By.linkText("ログイン")).sendKeys(Keys.CONTROL);
-        try {
-            driver.findElement(By.linkText("ログイン")).click();
-        } catch (Exception e) {
-            System.out.println("ログインクリック時の例外");
-            logger.log(Level.WARNING, "ログインクリック時の例外 {0}", new Object[]{e.toString()});
-//                    e.printStackTrace();
-        }
+//        driver.get("https://atmick.blog.ss-blog.jp/");
+        driver.get("https://sso.ss-blog.jp/account/login");
+
+//        driver.findElement(By.linkText("ログイン")).sendKeys(Keys.CONTROL);
+//        try {
+//            driver.findElement(By.linkText("ログイン")).click();
+//        } catch (Exception e) {
+//            System.out.println("ログインクリック時の例外");
+//            logger.log(Level.WARNING, "ログインクリック時の例外 {0}", new Object[]{e.toString()});
+////                    e.printStackTrace();
+//        }
         WebDriverWait wait = new WebDriverWait(driver, 44);
         wait.until(ExpectedConditions.visibilityOfElementLocated(By.name("email")));
         WebElement user = driver.findElement(By.name("email"));
@@ -97,7 +98,7 @@ public class AtMichSeleniumChrome {
         driver.findElement(By.name("password")).sendKeys("7656198s-");
         driver.findElement(By.cssSelector("body > div > main > div > div > form > fieldset > button")).sendKeys(Keys.CONTROL);
         driver.findElement(By.cssSelector("body > div > main > div > div > form > fieldset > button")).click();
-        wait.until(ExpectedConditions.visibilityOfElementLocated(By.linkText("＠ミック")));
+//        wait.until(ExpectedConditions.visibilityOfElementLocated(By.linkText("＠ミック")));
         System.out.println(" ＠ミックとしてログイン ");
         logger.log(Level.INFO, "＠ミックとしてログイン：info");
 
@@ -121,7 +122,7 @@ public class AtMichSeleniumChrome {
         String serverencoding = "UTF-8";
 
         /* データベースをあらわすURLを設定している */
-        String url = "jdbc:mysql://localhost/" + databasename + "?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC";
+        String url = "jdbc:mysql://localhost:53306/" + databasename + "?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC";
 //        String url = "jdbc:mysql://192.168.1.212:3306/" + databasename;
 
         /*
